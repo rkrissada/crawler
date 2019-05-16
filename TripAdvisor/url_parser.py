@@ -11,21 +11,21 @@ import re
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 #target_url = 'https://www.tripadvisor.com.tw/Hotels-g294225-Indonesia-Hotels.html'
-target_url = 'https://www.tripadvisor.com.au/Hotels-g293916-Bangkok-Hotels.html'
+target_url = 'https://www.tripadvisor.com/Hotels-g293916-Bangkok-Hotels.html'
 driver = webdriver.Chrome('/usr/local/bin/chromedriver/', chrome_options=options)
 driver.get(target_url)
 driver.maximize_window()
 
 soup = BeautifulSoup(driver.page_source, 'html.parser')
-domain = 'https://www.tripadvisor.com.au'
+domain = 'https://www.tripadvisor.com'
 
 # scrape page
 next_page = '//*[@id="taplc_main_pagination_bar_dusty_hotels_resp_0"]/div/div/div/span[2]'
 #check_last_page = '#taplc_main_pagination_bar_dusty_hotels_resp_0 > div > div > div > div > span.pageNum.last.taLnk'
-check_last_page = '#taplc_main_pagination_bar_dusty_hotels_resp_0 > div > div > div > div > span.pageNum'
+check_last_page = '#taplc_main_pagination_bar_dusty_hotels_resp_0 > div > div > div > div > a.pageNum.last.taLnk'
+#print(soup.select(check_last_page))
 page_down = "window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;"
-print(soup.select(check_last_page))
-page_list = range(int(soup.select(check_last_page)[0].get('data-page-number')))
+page_list =  range(int(soup.select(check_last_page)[0].get('data-page-number')))
 print("Total number of page: {}".format(len(page_list)))
 
 with open('./data/url_parser.csv', 'a') as csvfile:
