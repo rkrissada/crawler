@@ -10,9 +10,7 @@ import re
 
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
-#target_url = 'https://www.tripadvisor.com.tw/Hotels-g294225-Indonesia-Hotels.html'
 target_url = 'https://www.tripadvisor.com/Hotel_Review-g293916-d3183208-Reviews-Klassique_Sukhumvit-Bangkok.html' 
-#target_url = 'https://www.tripadvisor.com/Hotels-g293916-Bangkok-Hotels.html'
 driver = webdriver.Chrome('/usr/local/bin/chromedriver/', chrome_options=options)
 driver.get(target_url)
 driver.maximize_window()
@@ -21,59 +19,55 @@ soup = BeautifulSoup(driver.page_source, 'html.parser')
 domain = 'https://www.tripadvisor.com'
 
 # scrape page
-next_page = '//a[@class="ui_button nav next primary "]'
+next_page = '//*[@id="taplc_hr_community_content_0"]/div/div/div/span/a'
 check_last_page = soup.find('div',{'class' : "pageNumbers"}).find_all("a")[-1].get_text()
-#print(check_last_page)
-#print(pages_list.find_all("a")[-1].get_text())
 page_down = "window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;"
 page_list =  range(int(check_last_page))
 print("Total number of page: {}".format(len(page_list)))
 
+#page_list = [1]
 
 
 with open('./data/review_parser.csv', 'a') as csvfile:
-    fieldnames = ['hotel_id', 'hotel_name', 'n_comment', 'rank_in_country', 'url']
+    fieldnames = ['user', 'stay_date', 'rate']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
-    index = 0
+    
 
     for p in page_list:
         print('the number of page = {0}/{1}'.format(p+1, len(page_list)))
         soup = BeautifulSoup(driver.page_source, 'html.parser')
-        review_blocks = soup.find_all('div', {"class": "hotels-community-tab-common-Card__ui_card--mBW-w hotels-community-tab-common-Card__card--ihfZB hotels-community-tab-common-Card__section--4r93H"})
-        #print(len(review_blocks))
+        review_blocks = soup.find_all('div', {"class": "hotels-review-list-parts-SingleReview__reviewContainer--d54T4"})
         
+        index = 0
+
         for element in review_blocks:
-            #print(element)
             index += 1
-            try:
-                user = element.find('a', {"class": "ui_header_link social-member-event-MemberEventOnObjectBlock__member--35-jC"}).text
-            except:
-                user = None
-            print(user)
-            """
+            
+            user = element.find('a', {"class": "ui_header_link social-member-event-MemberEventOnObjectBlock__member--35-jC"}).text
+            
+            stay_date_group = element.find('div', {"class": "hotels-review-list-parts-EventDate__event_date--CRXs4"})
+            stay_date = stay_date_group.find('span', {"class": ""}).text.replace("Date of stay: ","")
+            
+            rate = element.find('div', {"class": "hotels-review-list-parts-RatingLine__bubbles--1oCI4"})
+            rate = str(rate.find('span'))[37:-9]
+            
             writer.writerow(
                             {
-                                'hotel_id':index,
-                                'hotel_name':hotel_name.encode("utf-8"),
-                                'n_comment':n_comment,
-                                'rank_in_country':rank_in_country.encode("utf-8"),
-                                'url':url
+                                'user':user,
+                                'stay_date':stay_date,
+                                'rate':rate
                             }
                            )
-            """
+
         try:
             driver.execute_script(page_down)
             time.sleep(5)
-            #driver.find_element_by_xpath(next_page).click()
-            try:
-                next = driver.find_element_by_class_name('ui_button nav next primary')#.click()
-            except:
-                print("not found")
-            #driver.execute_script('next = document.querySelector(".ui_button nav next primary "); next.click();')
-           
+            driver.find_element_by_css_selector(".ui_button.nav.next.primary").click()
+            time.sleep(8)
         except:
-            print('in the end')
+            print('>>>>>>>in the end<<<<<<<')
+            break
 
 
 driver.quit()
