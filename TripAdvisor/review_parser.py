@@ -25,8 +25,6 @@ page_down = "window.scrollTo(0, document.body.scrollHeight);var lenOfPage=docume
 page_list =  range(int(check_last_page))
 print("Total number of page: {}".format(len(page_list)))
 
-
-
 with open('./data/review_parser.csv', 'a') as csvfile:
     fieldnames = ['user', 'stay_date', 'rate']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
