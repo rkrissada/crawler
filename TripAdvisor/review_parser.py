@@ -25,7 +25,6 @@ page_down = "window.scrollTo(0, document.body.scrollHeight);var lenOfPage=docume
 page_list =  range(int(check_last_page))
 print("Total number of page: {}".format(len(page_list)))
 
-#page_list = [1]
 
 
 with open('./data/review_parser.csv', 'a') as csvfile:
@@ -68,6 +67,5 @@ with open('./data/review_parser.csv', 'a') as csvfile:
         except:
             print('>>>>>>>in the end<<<<<<<')
             break
-
 
 driver.quit()
