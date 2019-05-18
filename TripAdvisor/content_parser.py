@@ -20,14 +20,14 @@ else:
 with open('./data/content_parser.csv', 'a') as csvfile:
     fieldnames = [
                     'hotel_id', 'address', 'rank', 'phone',
-                    'n_Excellent', 'n_VeryGood', 'n_Average', 'n_Poor', 'n_Terrible', 'amenities'
+                    'n_Excellent', 'n_VeryGood', 'n_Average', 'n_Poor', 'n_Terrible', 'amenities','hotel_class'
                  ]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
 
     for index, u in enumerate(df['url'][:limit]):
         hotel_id = df['hotel_id'][index]
-        print('process = {}/{}'.format(index+1, total_hotels))
+        print("Crawling hotel page [{}]/[{}]".format(index+1,total_hotels), end='\r', flush=True)
         r = requests.get(u)
         soup = BeautifulSoup(r.text, 'html.parser')
         # info_block
@@ -76,7 +76,7 @@ with open('./data/content_parser.csv', 'a') as csvfile:
                 rating_dict[col] = None
 
         amenities = " | ".join([a.text for a in soup.find_all('span', {'class': "hotels-hotel-review-about-with-photos-Amenity__name--2IUMR"})])
- 
+        hotel_class = str(soup.find_all('div', {'class': "hotels-hotel-review-about-with-photos-layout-TextItem__textitem--3kv6J"})[-1:])[118:120]    
         writer.writerow(
                          {
                             'hotel_id':hotel_id,
@@ -88,7 +88,9 @@ with open('./data/content_parser.csv', 'a') as csvfile:
                             'n_Average':rating_dict["Average"],
                             'n_Poor':rating_dict["Poor"],
                             'n_Terrible':rating_dict["Terrible"],
-                            'amenities':amenities
+                            'amenities':amenities,
+                            'hotel_class':hotel_class
                          }
                         )
         csvfile.flush()
+    print("")
