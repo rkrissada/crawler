@@ -20,7 +20,7 @@ else:
 with open('./data/content_parser.csv', 'a') as csvfile:
     fieldnames = [
                     'hotel_id', 'address', 'rank', 'phone',
-                    'n_Excellent', 'n_VeryGood', 'n_Average', 'n_Poor', 'n_Terrible', 'price'
+                    'n_Excellent', 'n_VeryGood', 'n_Average', 'n_Poor', 'n_Terrible', 'amenities'
                  ]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
@@ -75,12 +75,8 @@ with open('./data/content_parser.csv', 'a') as csvfile:
             except:
                 rating_dict[col] = None
 
-        try:
-            price_range = soup.find('div', {'class':"hotels-hotel-review-about-addendum-AddendumItem__content--iVts5"}).text
-        except:
-            price_range = "N/A"
-
-            
+        amenities = " | ".join([a.text for a in soup.find_all('span', {'class': "hotels-hotel-review-about-with-photos-Amenity__name--2IUMR"})])
+ 
         writer.writerow(
                          {
                             'hotel_id':hotel_id,
@@ -92,7 +88,7 @@ with open('./data/content_parser.csv', 'a') as csvfile:
                             'n_Average':rating_dict["Average"],
                             'n_Poor':rating_dict["Poor"],
                             'n_Terrible':rating_dict["Terrible"],
-                            'price':price_range
+                            'amenities':amenities
                          }
                         )
         csvfile.flush()
