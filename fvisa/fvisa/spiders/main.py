@@ -15,7 +15,7 @@ class MainSpider(scrapy.Spider):
     allowed_domains = ['www.immihelp.com']
 
     def start_requests(self):
-        for i in range(1, 529):
+        for i in range(1, 530):
             url = 'https://www.immihelp.com/forum/usa-student-visa/page' + str(i)
             yield scrapy.Request(url=url, callback=self.parse)
 
